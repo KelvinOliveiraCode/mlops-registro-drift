@@ -1,93 +1,83 @@
 # mlops-registro-drift
 
-Registro de modelo + detecção de drift de dados.
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)   ![status: concluido](https://img.shields.io/badge/status-concluido-green)   ![licenca: MIT](https://img.shields.io/badge/licenca-MIT-blue)
 
-MVP de MLOps: registro de versão de modelo (MLflow quando disponível, senão arquivo JSON local) e detecção de drift de dados (Evidently quando disponível, senão teste estatístico simples de desvio de média). Tudo em Python, determinístico, sem dependências externas obrigatórias para rodar os testes.
+## Resumo
 
-## Português
+Projeto em Python desenvolvido como estudo de engenharia de software. Projeto funcional, mlops-registro-drift
 
-### O que faz
-- Registro de modelo: grava nome, versão, estágio, métricas e data de criação. Usa MLflow se instalado; caso contrário grava um arquivo JSON local (`~/.mlops_registro_drift/registry.json`).
-- Detecção de drift: compara a média de cada coluna numérica entre dados de referência e dados atuais. Marca drift quando o desvio relativo excede o limiar (padrão 0,10). Usa Evidently se instalado; caso contrário aplica teste estatístico puro.
-- Pipeline: ajusta um modelo determinístico (média de treino, `random_state=42`), registra a versão e executa a detecção de drift, retornando um relatório.
+## Problema / por que existe
 
-### Como usar
-Requisitos: Python 3.10+.
+O projeto aborda um recorte pratico e automatiza uma tarefa que, feita manualmente, e repetitiva e propensa a erro. O foco esta em transformar dados ou processos em saida confiavel, com codigo legivel e testavel.
 
-```
-python -m pip install -e .
-python -m mlops_registro_drift
-```
+## Arquitetura
 
-Saída esperada:
+O codigo esta organizado por responsabilidade:
 
-```
-Pipeline mlops-registro-drift executado com sucesso.
-Modelo: modelo-demo v1 (local)
-Drift detectado: False (0/1 colunas)
-```
+- Entrada: leitura de arquivo, API, entrada do usuario ou captura de dados (dependendo do modulo).
+- Processamento: funcoes puras ou classes que aplicam regras de negocio, transformacao ou analise sobre os dados de entrada.
+- Saida: gravacao de arquivo, impressao em terminal, resposta HTTP ou geracao de relatorio.
 
-### Testes
-Executa a suíte pytest (sem MLflow, Evidently nem Docker):
+Quando aplicavel, a aplicacao separa a camada de acesso a dados da camada de logica de negocio, para que mudar a origem dos dados nao exija reescrever as regras.
 
-```
-python -m pytest -q
-```
+## Tecnologias
 
-Resultado: 19 testes passando.
+- Python 3.x
+- (nenhum informado no repositorio)
 
-### Docker
-```
-docker build -t mlops-registro-drift .
-docker run --rm mlops-registro-drift
-```
+- Sem CI configurado neste repositorio.
 
-### Licença
-MIT.
+O repositorio contem testes automatizados.
 
-### Autor
-Kelvin Oliveira.
+## O que faz
 
-## English
+Projeto funcional, mlops-registro-drift
 
-### What it does
-- Model registry: records name, version, stage, metrics and creation date. Uses MLflow if installed; otherwise writes a local JSON file (`~/.mlops_registro_drift/registry.json`).
-- Data drift detection: compares the mean of each numeric column between reference and current data. Flags drift when relative deviation exceeds the threshold (default 0.10). Uses Evidently if installed; otherwise applies a pure statistical mean-deviation test.
-- Pipeline: fits a deterministic model (training mean, `random_state=42`), registers the version and runs drift detection, returning a report.
+## Como rodar
 
-### How to use
-Requirements: Python 3.10+.
+Requisitos: Python 3.x instalado.
 
 ```
-python -m pip install -e .
-python -m mlops_registro_drift
+# instalar dependencias (se houver requirements.txt)
+pip install -r requirements.txt
+
+# executar
+python main.py
+
+# executar testes
+pytest
 ```
 
-Expected output:
+## Estrutura do projeto
+
+- src/ (5 arquivo(s))
+- tests/ (5 arquivo(s))
+- .gitignore, BRIEF.md, Dockerfile, pyproject.toml, README.en.md, README.md
+
+
+## Trade-offs e decisões
+
+- Biblioteca padrao sempre que possivel, dependencias externas so quando o ganho justifica a manutencao.
+- Scripts executaveis direto, sem build step complexo, para facilitar a reproducao.
+- Logica separada de entrada/saida para manter as funcoes de processamento testaveis.
+
+## Limitações conhecidas
+
+- Escopo limitado ao recorte descrito; nao e uma plataforma completa.
+- Depende de Python 3.x no ambiente de execucao.
+
+
+## Testes
 
 ```
-Pipeline mlops-registro-drift executed successfully.
-Model: modelo-demo v1 (local)
-Drift detected: False (0/1 columns)
+pytest
 ```
 
-### Tests
-Run the pytest suite (no MLflow, Evidently or Docker required):
+## Licença
 
-```
-python -m pytest -q
-```
+Distribuído sob a licenca MIT. Consulte o arquivo `LICENSE` do repositorio.
 
-Result: 19 tests passing.
+## Autor
 
-### Docker
-```
-docker build -t mlops-registro-drift .
-docker run --rm mlops-registro-drift
-```
-
-### License
-MIT.
-
-### Author
-Kelvin Oliveira.
+Kelvin Oliveira, https://github.com/KelvinOliveiraCode
+Portfolio: https://kelvinoliveiracode.github.io/portfolio/
