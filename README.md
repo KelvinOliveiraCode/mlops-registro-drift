@@ -6,7 +6,7 @@
 
 ## O que é
 
-**Pipeline MLOps de registro de modelo e detecção de drift de dados**: registra um modelo (via **MLflow** quando instalado, senão em **JSON local**) e compara dados de **referência × atuais** para detectar **drift** (via **Evidently** quando instalado, senão com um teste estatístico próprio nas médias das colunas). Inclui **Dockerfile** para rodar a pipeline isolada. É um laboratório educacional de MLOps robusto ao ambiente (fallbacks).
+**Pipeline MLOps de registro de modelo e detecção de drift de dados**: registra um modelo (via **MLflow** quando instalado, senão em **JSON local**) e compara dados de **referência × atuais** para detectar **drift** (via **Evidently** quando instalado, senão com um teste estatístico próprio nas médias das colunas). Inclui **Dockerfile** para rodar a pipeline isolada. É um laboratório educacional de MLOps tolerante a ambientes sem as dependências opcionais (fallbacks).
 
 ## Status
 
@@ -15,10 +15,10 @@ Laboratório educacional de MLOps, funcional e testado (19 testes). Roda sem dep
 ## Funcionalidades
 
 - **Registro de modelo** (`registry.py`): `ModelEntry`/`ModelRegistry` com versionamento; usa MLflow se disponível, senão grava em JSON local (`source: "local"/"mlflow"`).
-- **Detecção de drift** (`drift.py`): `DriftDetector`/`DriftReport` — compara médias das colunas (Evidently se disponível); relata `drift_detected`, `n_drifted`, `n_columns`.
+- **Detecção de drift** (`drift.py`): `DriftDetector`/`DriftReport`, compara médias das colunas (Evidently se disponível); relata `drift_detected`, `n_drifted`, `n_columns`.
 - **Pipeline** (`pipeline.py`): orquestra registro + drift end to end.
-- **Dockerfile**: `python:3.12-slim`, instala `.[dev]`, roda `python -m mlops_registro_drift`.
-- **Fallbacks**: dependências opcionais (MLflow/Evidently) têm caminho próprio embutido.
+- Dockerfile: `python:3.12-slim`, instala `.[dev]`, roda `python -m mlops_registro_drift`.
+- Fallbacks: dependências opcionais (MLflow/Evidently) têm caminho próprio embutido.
 
 ## Arquitetura
 
@@ -41,7 +41,7 @@ flowchart LR
 
 ## Estrutura do repositório
 
-```
+```text
 mlops-registro-drift/
 ├── pyproject.toml · BRIEF.md · Dockerfile
 ├── src/mlops_registro_drift/
@@ -85,13 +85,13 @@ PYTHONPATH=src python -m pytest tests/
 
 ## Decisões técnicas e trade-offs
 
-- **Fallbacks (MLflow/Evidently opcionais)**: a pipeline roda em qualquer ambiente; em troca, sem as integrações, usa implementações próprias.
+- Fallbacks (MLflow/Evidently opcionais): a pipeline roda em qualquer ambiente; em troca, sem as integrações, usa implementações próprias.
 - **Registro local em JSON** quando MLflow não está presente: versionamento simples e portátil.
-- **Drift por médias de colunas**: teste estatístico leve e transparente; menos poderoso que Evidently completo.
+- Drift por médias de colunas: teste estatístico leve e transparente; menos poderoso que Evidently completo.
 
 ## Limitações conhecidas e roadmap
 
-- Sem MLflow/Evidently instalados, usa os fallbacks (funcional, mas menos robusto que as ferramentas).
+- Sem MLflow/Evidently instalados, usa os fallbacks (funcional, mas menos completo que as ferramentas).
 - O drift detecta mudanças de distribuição básicas (médias); não cobre correlações/qualidade de dados avançada.
 - Demo com dados sintéticos em `__main__`.
 
@@ -101,6 +101,6 @@ Projeto individual de Kelvin Oliveira, construído com agentes de IA orquestrado
 
 ## Licença e autor
 
-MIT — Copyright (c) 2026 Kelvin Rebelo de Oliveira.
+MIT. Copyright (c) 2026 Kelvin Rebelo de Oliveira.
 
 **Autor**: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [Portfólio](https://kelvinoliveiracode.github.io/portfolio/)

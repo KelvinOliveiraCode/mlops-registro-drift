@@ -15,10 +15,10 @@ An educational MLOps lab, working and tested (19 tests). Runs without the option
 ## Features
 
 - **Model registration** (`registry.py`): `ModelEntry`/`ModelRegistry` with versioning; uses MLflow if available, otherwise writes to a local JSON (`source: "local"/"mlflow"`).
-- **Drift detection** (`drift.py`): `DriftDetector`/`DriftReport` — compares column means (Evidently if available); reports `drift_detected`, `n_drifted`, `n_columns`.
+- **Drift detection** (`drift.py`): `DriftDetector`/`DriftReport`, compares column means (Evidently if available); reports `drift_detected`, `n_drifted`, `n_columns`.
 - **Pipeline** (`pipeline.py`): orchestrates registration + drift end to end.
-- **Dockerfile**: `python:3.12-slim`, installs `.[dev]`, runs `python -m mlops_registro_drift`.
-- **Fallbacks**: optional dependencies (MLflow/Evidently) have a built-in fallback path.
+- Dockerfile: `python:3.12-slim`, installs `.[dev]`, runs `python -m mlops_registro_drift`.
+- Fallbacks: optional dependencies (MLflow/Evidently) have a built-in fallback path.
 
 ## Architecture
 
@@ -41,7 +41,7 @@ flowchart LR
 
 ## Repository layout
 
-```
+```text
 mlops-registro-drift/
 ├── pyproject.toml · BRIEF.md · Dockerfile
 ├── src/mlops_registro_drift/
@@ -85,9 +85,9 @@ PYTHONPATH=src python -m pytest tests/
 
 ## Technical decisions and trade-offs
 
-- **Fallbacks (MLflow/Evidently optional)**: the pipeline runs in any environment; in exchange, without the integrations it uses its own implementations.
+- Fallbacks (MLflow/Evidently optional): the pipeline runs in any environment; in exchange, without the integrations it uses its own implementations.
 - **Local JSON registration** when MLflow is absent: simple and portable versioning.
-- **Drift on column means**: a light and transparent statistical test; less powerful than full Evidently.
+- Drift on column means: a light and transparent statistical test; less powerful than full Evidently.
 
 ## Known limitations and roadmap
 
@@ -101,6 +101,6 @@ An individual project by Kelvin Oliveira, built with orchestrated AI agents and 
 
 ## License and author
 
-MIT — Copyright (c) 2026 Kelvin Rebelo de Oliveira.
+MIT. Copyright (c) 2026 Kelvin Rebelo de Oliveira.
 
 **Author**: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [Portfolio](https://kelvinoliveiracode.github.io/portfolio/)
