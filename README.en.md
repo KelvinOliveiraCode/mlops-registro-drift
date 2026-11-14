@@ -1,118 +1,106 @@
 # mlops-registro-drift
 
-<div align="center">
-
 **English** · [Português (Brasil)](README.md)
 
-</div>
-
-[![Python 3](https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/) [![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikit-learn)](https://scikit-learn.org/) [![pandas](https://img.shields.io/badge/pandas-150458?style=flat-square&logo=pandas)](https://pandas.pydata.org/) [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=flat-square&logo=pytest)](https://docs.pytest.org/) [![MIT License](https://img.shields.io/badge/License-MIT-f4c430?style=flat-square)](LICENSE)
-
-### Projeto funcional ,  mlops-registro-drift
-
----
+[![Python 3](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](#) [![MLflow](https://img.shields.io/badge/MLflow-optional-0194E2?style=flat-square&logo=mlflow)](#) [![Evidently](https://img.shields.io/badge/Evidently-optional-0194E2?style=flat-square)](#) [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker)](#) [![pytest](https://img.shields.io/badge/pytest-19%20tests-0A9EDC?style=flat-square&logo=pytest)](#) [![MIT License](https://img.shields.io/badge/License-MIT-f4c430?style=flat-square)](LICENSE)
 
 ## What it is
 
-Projeto funcional ,  mlops-registro-drift
+**An MLOps pipeline for model registration and data-drift detection**: it registers a model (via **MLflow** when installed, otherwise in a **local JSON**) and compares **reference vs current** data to detect **drift** (via **Evidently** when installed, otherwise with its own statistical test on column means). It includes a **Dockerfile** to run the pipeline in isolation. It is an educational MLOps lab that is robust to the environment (fallbacks).
 
----
+## Status
 
-## Quick Start
+An educational MLOps lab, working and tested (19 tests). Runs without the optional dependencies (built-in fallbacks).
 
-```bash
-# Clone and enter
-git clone https://github.com/KelvinOliveiraCode/<repo>.git
-cd <repo>
+## Features
 
-# Install dependencies
-# No requirements.txt detected
+- **Model registration** (`registry.py`): `ModelEntry`/`ModelRegistry` with versioning; uses MLflow if available, otherwise writes to a local JSON (`source: "local"/"mlflow"`).
+- **Drift detection** (`drift.py`): `DriftDetector`/`DriftReport` — compares column means (Evidently if available); reports `drift_detected`, `n_drifted`, `n_columns`.
+- **Pipeline** (`pipeline.py`): orchestrates registration + drift end to end.
+- **Dockerfile**: `python:3.12-slim`, installs `.[dev]`, runs `python -m mlops_registro_drift`.
+- **Fallbacks**: optional dependencies (MLflow/Evidently) have a built-in fallback path.
 
-# Run the project
-python main.py
+## Architecture
 
-# Run tests
-pytest
+A `mlops_registro_drift` package with `registry.py` (model + version), `drift.py` (detection) and `pipeline.py` (orchestration). `__main__.py` runs on synthetic data and prints the result.
+
+```mermaid
+flowchart LR
+    DATA[reference vs current] --> DRIFT[drift.py - detect]
+    DATA --> REG[registry.py - register model]
+    DRIFT --> PIPE[pipeline.py - final report]
+    REG --> PIPE
+    PIPE --> MAIN[__main__.py - stdout]
 ```
 
-## How it works
+## Stack
 
-Estrutura limpa e modular com separação de responsabilidades.
+- Python ≥ 3.10 (stdlib base; mlflow/evidently optional in extras)
+- Docker (python:3.12-slim)
+- pytest (dev)
 
----
+## Repository layout
 
-## Capabilities
+```
+mlops-registro-drift/
+├── pyproject.toml · BRIEF.md · Dockerfile
+├── src/mlops_registro_drift/
+│   ├── registry.py     # model registration/versioning
+│   ├── drift.py        # data-drift detection
+│   ├── pipeline.py     # orchestration
+│   └── __main__.py     # CLI/synthetic-data demo
+├── tests/              # 19 tests
+└── LICENSE             # MIT
+```
 
-| Capacidade | Descrição |
-|------------|-------------|
-| Carregamento de Dados | Auto-download do TensorFlow creditcard.csv (284k transações) com cache local |
-| EDA e Visualização | Distribuição de classes, histogramas de Amount, heatmaps de correlação (matplotlib/seaborn) |
-| Pré-processamento | RobustScaler em Amount/Time, split estratificado, remoção de duplicatas |
-| Balanceamento | SMOTE oversampling (fallback: class_weight="balanced") |
-| Modelagem | LogisticRegression, RandomForest, ExtraTrees com RandomizedSearchCV (StratifiedKFold) |
-| Métricas | Accuracy, Precision, Recall, F1, ROC AUC, Specificity, Confusion Matrix |
-| Seleção | Score ponderado: Recall 40% + F1 30% + Precision 20% + Accuracy 10% |
-| Persistência | Serialização joblib para modelo, scaler e resultados completos |
+## Prerequisites and installation
 
+Python ≥ 3.10.
 
----
+```bash
+pip install -e .          # base (fallbacks)
+pip install -e ".[mlflow,evidently]"   # optional: real integrations
+```
 
+## How to run
 
+```bash
+python -m mlops_registro_drift
+# Pipeline mlops-registro-drift executado com sucesso.
+# Modelo: modelo-demo v2 (local)
+# Drift detectado: False (0/2 colunas)
 
----
+# via Docker
+docker build -t mlops-drift . && docker run --rm mlops-drift
+```
 
-## FAQ
+## Tests and quality
 
-<details>
-<summary><strong>What is this project?</strong></summary>
+Real command (verified by the agent):
 
-A Python study/project demonstrating core concepts.
+```bash
+PYTHONPATH=src python -m pytest tests/
+# 19 passed
+```
 
-</details>
+## Technical decisions and trade-offs
 
-<details>
-<summary><strong>How do I run it?</strong></summary>
+- **Fallbacks (MLflow/Evidently optional)**: the pipeline runs in any environment; in exchange, without the integrations it uses its own implementations.
+- **Local JSON registration** when MLflow is absent: simple and portable versioning.
+- **Drift on column means**: a light and transparent statistical test; less powerful than full Evidently.
 
-See [Quick Start](#quick-start) for copy-paste commands.
+## Known limitations and roadmap
 
-</details>
+- Without MLflow/Evidently installed, it uses the fallbacks (functional, but less robust than the tools).
+- Drift detects basic distribution shifts (means); it does not cover correlations/advanced data quality.
+- Demo with synthetic data in `__main__`.
 
-<details>
-<summary><strong>Are there tests?</strong></summary>
+## Development process
 
-No automated tests in this repository.
+An individual project by Kelvin Oliveira, built with orchestrated AI agents and reviewed by the author. The MLOps pipeline, the fallbacks and the review are the author's.
 
-</details>
+## License and author
 
-<details>
-<summary><strong>Can I use this in production?</strong></summary>
+MIT — Copyright (c) 2026 Kelvin Rebelo de Oliveira.
 
-This is a **study/portfolio project**. Review and harden (auth, persistence, monitoring, etc.) before production use.
-
-</details>
-
-
-
----
-
-## Documentation
-
-- **Source Code** ,  Browse the `src/` directory for implementation details
-- **API Reference** ,  Inline docstrings + type hints
-- **Architecture Diagram** ,  See [architecture.mermaid](docs/architecture.mermaid) (if present)
-- **Changelog** ,  [CHANGELOG.md](CHANGELOG.md) (if present)
-- **Contributing** ,  [CONTRIBUTING.md](CONTRIBUTING.md) (if present)
-
-## License
-
-[MIT](LICENSE) ,  Kelvin Oliveira
-
----
-
-<div align="center">
-
-**Built with** · Python 3 + scikit-learn + pandas
-
-**Author** · [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [Portfolio](https://kelvinoliveiracode.github.io/portfolio/)
-
-</div>
+**Author**: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [Portfolio](https://kelvinoliveiracode.github.io/portfolio/)
